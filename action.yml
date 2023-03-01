@@ -27,7 +27,8 @@ runs:
     - name: Create branch from develop with name phrase/auto-pull-request-translate
       run: |
           git checkout -b "phrase/auto-pull-request-translate-to-${{ github.ref_name }}"
-      
+      shell: bash
+
     - name: Setup Phrase CLI v2
         uses: phrase/setup-cli@8ba41082292efdedf85e88d8017398929a05b201
           with:
