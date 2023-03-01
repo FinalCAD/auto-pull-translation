@@ -1,4 +1,4 @@
-# Auto Pull Phrase Translation v1
+# Auto Pull Phrase Translation v2
 
 This Github action finds the "phrase.yml" file on your repository, retrieves the latest translations and creates a pull request.
 
