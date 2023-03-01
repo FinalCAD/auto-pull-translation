@@ -1,5 +1,10 @@
 name: 'Auto pull translation'
 description: 'Get last translation on Phrase and create a pull request'
+inputs:
+  path-to-phrase-yml:
+    description: 'Path to .phrase.yml in repository'
+    required: true
+    default: './'
 
 runs:
   using: "composite"
@@ -36,8 +41,10 @@ runs:
 
     - name: Move to file phrase.yml & pull
       run: |
-        cd $(dirname $(find . -name ".phrase.yml"))
-        echo "Moving to: $PWD"
+        cd ${{ inputs.path-to-phrase-yml }}
+
+        echo "${{ inputs.path-to-phrase-yml }}D"
+        
         phrase pull
       shell: bash
 
