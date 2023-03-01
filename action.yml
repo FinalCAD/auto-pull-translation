@@ -1,0 +1,57 @@
+name: 'Auto pull translation'
+description: 'Get last translation on Phrase and create a pull request'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get current date
+    id: date
+    run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+    
+    - name: Clone repository
+      uses: actions/checkout@v3.3.0
+
+    - name: Delete all branches on remote with name phrase/*
+      run: |
+        branches=$(git ls-remote --heads origin "phrase/*" | awk '{print $2}' | sed 's#refs/heads/##')
+
+        for branch in "${branches[@]}"
+          do
+            echo "Deleting branches: $branch"
+            git push --delete origin $branch
+        done
+      shell: bash
+      continue-on-error: true
+
+    - name: Create branch from develop with name phrase/auto-pull-request-translate
+      run: |
+          git checkout -b "phrase/auto-pull-request-translate-to-${{ github.ref_name }}"
+      
+    - name: Setup Phrase CLI v2
+        uses: phrase/setup-cli@8ba41082292efdedf85e88d8017398929a05b201
+          with:
+            version: 2.6.8
+
+    - name: Move to file phrase.yml & pull
+        run: |
+          cd $(dirname $(find . -name ".phrase.yml"))
+          echo "Moving to: $PWD"
+          phrase pull
+        shell: bash
+
+    - name: Commit changes with name Automatic update translations YYYY-MM-DD.
+        uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a
+        with:
+          commit_message: "Automatic update translations ${{ steps.date.outputs.date }}"
+          branch: phrase/auto-pull-request-translate-to-${{ github.ref_name }}
+          create_branch: true
+          commit_user_name: My GitHub Actions Bot
+          commit_user_email: my-github-actions-bot@example.org
+          commit_author: Author <actions@github.com>
+
+    - name: Open the pull request
+        uses: repo-sync/pull-request@7e79a9f5dc3ad0ce53138f01df2fad14a04831c5
+        with:
+          source_branch: phrase/auto-pull-request-translate-to-${{ github.ref_name }}
+          destination_branch: ${{ github.ref_name }}
+          pr_title: "Automatic update translations ${{ steps.date.outputs.date }}"
