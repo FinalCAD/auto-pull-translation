@@ -5,6 +5,10 @@ inputs:
     description: 'Path to .phrase.yml in repository'
     required: true
     default: './'
+  reviewers:
+    description: 'List of reviewers to add to the pull request, comma-separated list (no spaces)'
+    required: false
+    default: ''
 
 runs:
   using: "composite"
@@ -64,6 +68,7 @@ runs:
         source_branch: phrase/auto-pull-request-translate-to-${{ github.ref_name }}
         destination_branch: ${{ github.ref_name }}
         pr_title: "Automatic update translations ${{ steps.date.outputs.date }}"
+        pr_reviewer: ${{ inputs.reviewers }}
 
 branding:
   icon: 'align-justify'
